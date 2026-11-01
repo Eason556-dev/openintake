@@ -25,8 +25,9 @@ public enum L10n {
     }
     public static func tr(_ message: Message, language: String? = nil) -> String {
         let code = language ?? self.language
-        let bundle = resources.path(forResource: code, ofType: "lproj").flatMap(Bundle.init(path:)) ?? resources
-        let result = bundle.localizedString(forKey: message.key, value: message.key, table: "Localizable")
+        // SwiftPM may normalize language folder casing. Read the explicit table rather
+        // than letting a child Bundle fall back to the runner's preferred language.
+        let result = localizedTables[code]?[message.key] ?? message.key
         // Substitute once, so braces inside a product name remain literal user data.
         let expression = try! NSRegularExpression(pattern: #"\{(\d+)\}"#)
         let source = result as NSString
@@ -74,12 +75,19 @@ public enum L10n {
         }
         return source
     }
-    private static let diagnosticEnglish: [String: String] = {
-        guard let path = resources.path(forResource: "Localizable", ofType: "strings", inDirectory: "en.lproj"),
-              let data = FileManager.default.contents(atPath: path),
-              let table = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String] else { return [:] }
-        return table
+    private static let localizedTables: [String: [String: String]] = {
+        guard let root = resources.resourceURL,
+              let folders = try? FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil) else { return [:] }
+        var result: [String: [String: String]] = [:]
+        for language in ["en", "zh-Hans"] {
+            guard let folder = folders.first(where: { $0.lastPathComponent.caseInsensitiveCompare(language + ".lproj") == .orderedSame }),
+                  let data = try? Data(contentsOf: folder.appendingPathComponent("Localizable.strings")),
+                  let table = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String] else { continue }
+            result[language] = table
+        }
+        return result
     }()
+    private static let diagnosticEnglish: [String: String] = localizedTables["en"] ?? [:]
     private struct DiagnosticTemplate: @unchecked Sendable {
         var key: String
         var translation: String
