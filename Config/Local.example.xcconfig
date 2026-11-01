@@ -1,0 +1,6 @@
+// Copy to Local.xcconfig (ignored by Git). Choose YOUR OWN unique prefix.
+// All four bundle IDs and the Watch companion reference derive from this value.
+OPENINTAKE_BUNDLE_ID = org.example.openintake
+OPENINTAKE_APP_GROUP = group.org.example.openintake.shared
+// Set your own Team in Xcode on ALL four targets, or uncomment the next line.
+// DEVELOPMENT_TEAM = YOUR_TEAM_ID

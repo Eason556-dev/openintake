@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="250" viewBox="0 0 1080 250" role="img" aria-labelledby="title desc">
+<title id="title">OpenIntake recording workflow</title><desc id="desc">Create or reuse a product, enter actual quantity, record locally, then write and verify supported known values in Apple Health. Unknown-only meals remain local.</desc>
+<rect width="1080" height="250" rx="24" fill="#f2faf5"/>
+<g font-family="system-ui, sans-serif" text-anchor="middle" fill="#123b2a">
+<text x="540" y="36" font-size="22" font-weight="700">Your records. Your device. Apple Health.</text>
+<g fill="white" stroke="#bfd8ca" stroke-width="2"><rect x="25" y="70" width="220" height="88" rx="16"/><rect x="295" y="70" width="220" height="88" rx="16"/><rect x="565" y="70" width="220" height="88" rx="16"/><rect x="835" y="70" width="220" height="88" rx="16"/></g>
+<g font-size="18" font-weight="600"><text x="135" y="108">Create / reuse</text><text x="405" y="108">Actual quantity</text><text x="675" y="108">Record locally</text><text x="945" y="108">Save + verify</text></g>
+<g font-size="14" fill="#526b5d"><text x="135" y="134">Label / manual entry</text><text x="405" y="134">g / mL / units / servings</text><text x="675" y="134">Durable event + retry</text><text x="945" y="134">Known HealthKit values</text></g>
+<g font-size="26" fill="#269760"><text x="270" y="122">→</text><text x="540" y="122">→</text><text x="810" y="122">→</text></g>
+<text x="540" y="202" font-size="16">Unknown nutrients stay unknown. Local-only meals do not create Health samples.</text>
+<text x="540" y="228" font-size="14" fill="#526b5d">No account · No server · No built-in AI · Open source</text>
+</g></svg>

@@ -1,0 +1,4 @@
+// Shared configuration; personal developer Team stays in the ignored local override.
+OPENINTAKE_BUNDLE_ID = org.openintake.app
+OPENINTAKE_APP_GROUP = group.org.openintake.shared
+#include? "Local.xcconfig"

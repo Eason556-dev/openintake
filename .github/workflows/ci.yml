@@ -1,0 +1,30 @@
+name: Build and test
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: xcodebuild -version && swift --version
+      - name: Public-file privacy check
+        run: python3 scripts/check_public_files.py
+      - name: Localization coverage
+        run: python3 scripts/check_localization.py
+      - name: Core tests
+        run: swift test
+      - name: Complete Apple nutrition catalogue
+        run: python3 scripts/audit_healthkit_catalog.py
+      - name: Reproducible project
+        run: |
+          python3 scripts/generate_project.py
+          git diff --exit-code -- OpenIntake.xcodeproj
+      - name: Unsigned iOS build
+        run: >-
+          xcodebuild -project OpenIntake.xcodeproj -scheme OpenIntake
+          -destination 'generic/platform=iOS' -derivedDataPath /tmp/OpenIntake-build
+          CODE_SIGNING_ALLOWED=NO build

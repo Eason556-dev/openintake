@@ -1,0 +1,54 @@
+name: Source release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Core and publication checks
+        run: |
+          swift test
+          python3 scripts/check_public_files.py
+          python3 scripts/check_localization.py
+          python3 scripts/audit_healthkit_catalog.py
+          python3 scripts/generate_project.py
+          git diff --exit-code -- OpenIntake.xcodeproj
+      - name: Unsigned iOS and watchOS build
+        run: >-
+          xcodebuild -project OpenIntake.xcodeproj -scheme OpenIntake
+          -destination 'generic/platform=iOS' -derivedDataPath /tmp/OpenIntake-release
+          CODE_SIGNING_ALLOWED=NO build
+      - name: Package audited source
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 scripts/package_source.py --version "${RELEASE_TAG#v}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-release
+          path: dist/*
+  release:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: source-release
+          path: dist
+      - name: Publish source-only prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          notes="docs/releases/$RELEASE_TAG.md"
+          if [ -f "$notes" ]; then
+            gh release create "$RELEASE_TAG" dist/* --verify-tag --prerelease --title "OpenIntake $RELEASE_TAG" --notes-file "$notes"
+          else
+            gh release create "$RELEASE_TAG" dist/* --verify-tag --prerelease --title "OpenIntake $RELEASE_TAG" --generate-notes
+          fi

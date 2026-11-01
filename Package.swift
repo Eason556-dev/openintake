@@ -1,0 +1,3 @@
+// swift-tools-version: 6.0
+import PackageDescription
+let package = Package(name: "IntakeCore", defaultLocalization: "en", platforms: [.macOS(.v13), .iOS(.v17)], products: [.library(name: "IntakeCore", targets: ["IntakeCore"])], targets: [.target(name: "IntakeShared", path: "Shared", exclude: ["CaptureIntakeIntent.swift", "WidgetBridge.swift"], sources: ["DashboardSnapshot.swift", "Localization.swift", "WatchTransfer.swift", "ConnectivityCallbacks.swift"], resources: [.process("Resources")]), .target(name: "IntakeCore", dependencies: ["IntakeShared"]), .testTarget(name: "IntakeCoreTests", dependencies: ["IntakeCore"])])

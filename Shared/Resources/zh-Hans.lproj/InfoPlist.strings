@@ -1,0 +1,3 @@
+"NSCameraUsageDescription" = "在本机扫描标签或拍摄餐食，供你核对。";
+"NSHealthShareUsageDescription" = "只核验本 App 写入的营养记录，不读取其他来源数据。";
+"NSHealthUpdateUsageDescription" = "将你确认的实际摄入写入 Apple 健康，并支持撤销。";

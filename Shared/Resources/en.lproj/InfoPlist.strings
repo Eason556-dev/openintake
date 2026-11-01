@@ -1,0 +1,3 @@
+"NSCameraUsageDescription" = "Scan labels or photograph meals on device for your review.";
+"NSHealthShareUsageDescription" = "Verify only nutrition samples written by this app, without reading other sources.";
+"NSHealthUpdateUsageDescription" = "Write confirmed actual intake to Apple Health and support undo.";
