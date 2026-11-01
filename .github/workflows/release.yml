@@ -46,6 +46,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "An existing release is preserved; no assets will be replaced."
+            exit 0
+          fi
           notes="docs/releases/$RELEASE_TAG.md"
           if [ -f "$notes" ]; then
             gh release create "$RELEASE_TAG" dist/* --verify-tag --prerelease --title "OpenIntake $RELEASE_TAG" --notes-file "$notes"

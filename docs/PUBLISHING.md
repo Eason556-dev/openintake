@@ -60,7 +60,7 @@ git push origin v0.7.2
 5. 标记 **pre-release**，因为目前是开发预览。检查下载名称、构建证据和说明后发布。
 6. 下载公开 ZIP，验证 checksum、解压并确认无 Local.xcconfig，能找到 OpenIntake.xcodeproj 及两份 README。
 
-若网页 Release 已先创建，则后续同标签自动发布可能因已存在而失败；不要重复创建。选择单一发布方式。当前工作流不修改既有 Release，以免意外替换公开资产。
+若网页 Release 已先创建，自动工作流会保留既有 Release，不替换其资产。建议选择单一发布方式；重复执行不应覆盖公开下载。
 
 [GitHub 官方 Release 步骤](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)。
 
