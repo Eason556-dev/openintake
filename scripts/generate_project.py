@@ -72,6 +72,7 @@ obj('project',f'isa = PBXProject; attributes = {{ LastUpgradeCheck = 2700; }}; b
 project=root/'OpenIntake.xcodeproj';project.mkdir(exist_ok=True)
 (project/'project.pbxproj').write_text('// !$*UTF8*$!\n{ archiveVersion = 1; classes = {}; objectVersion = 56; objects = {\n'+'\n'.join(objects)+f'\n}}; rootObject = {uid("project")}; }}\n')
 folder=project/'xcshareddata/xcschemes';folder.mkdir(parents=True,exist_ok=True)
+scheme_template=(root/'scripts/scheme.template.xml').read_text()
 for key in ['app','watch']:
- name=targets[key]['name'];ref=f'<BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="{uid(key+"target")}" BuildableName="{name}.app" BlueprintName="{name}" ReferencedContainer="container:OpenIntake.xcodeproj"/>'
- (folder/(name+'.xcscheme')).write_text(f'<?xml version="1.0" encoding="UTF-8"?><Scheme LastUpgradeVersion="2700" version="1.3"><BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES"><BuildActionEntries><BuildActionEntry buildForTesting="YES" buildForRunning="YES" buildForProfiling="YES" buildForArchiving="YES" buildForAnalyzing="YES">{ref}</BuildActionEntry></BuildActionEntries></BuildAction><LaunchAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB"><BuildableProductRunnable runnableDebuggingMode="0">{ref}</BuildableProductRunnable></LaunchAction><ArchiveAction buildConfiguration="Release" revealArchiveInOrganizer="YES"/></Scheme>')
+ name=targets[key]['name']
+ (folder/(name+'.xcscheme')).write_text(scheme_template.replace('__TARGET_ID__',uid(key+'target')).replace('__TARGET_NAME__',name))
