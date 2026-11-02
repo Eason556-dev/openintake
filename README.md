@@ -21,9 +21,9 @@ Apple Health remains the center for supported health data. OpenIntake does not d
 ## On iPhone and Apple Watch
 
 <p align="center">
-  <img src="docs/images/showcase/nutrition-iphone.jpg" width="330" alt="Real iPhone nutrition dashboard with energy, protein, carbohydrates, fat and essential nutrient progress" align="middle">
+  <img src="docs/images/showcase/nutrition-iphone.png" width="330" alt="Real iPhone nutrition dashboard with energy, protein, carbohydrates, fat and essential nutrient progress" align="middle">
   &nbsp;&nbsp;
-  <img src="docs/images/showcase/watch-complications.jpg" width="210" alt="Real Apple Watch face showing OpenIntake water, energy, protein, sugar and sodium complications" align="middle">
+  <img src="docs/images/showcase/watch-complications.png" width="210" alt="Real Apple Watch face showing OpenIntake water, energy, protein, sugar and sodium complications" align="middle">
 </p>
 
 <p align="center"><strong>Your daily intake, at a glance.</strong><br>Review nutrition on iPhone. Check it on your wrist. Clear values, personal targets and limits.</p>
@@ -31,9 +31,9 @@ Apple Health remains the center for supported health data. OpenIntake does not d
 ### Start wherever it feels natural
 
 <p align="center">
-  <img src="docs/images/showcase/water-widget.jpg" width="270" alt="OpenIntake quick water widget in the iPhone widget gallery with 150 and 250 mL actions" align="middle">
+  <img src="docs/images/showcase/water-widget.png" width="270" alt="OpenIntake quick water widget in the iPhone widget gallery with 150 and 250 mL actions" align="middle">
   &nbsp;&nbsp;
-  <img src="docs/images/showcase/quick-log-shortcut.jpg" width="270" alt="Quick logging menu for water, supplements, food, drinks and meal descriptions" align="middle">
+  <img src="docs/images/showcase/quick-log-shortcut.png" width="270" alt="Quick logging menu for water, supplements, food, drinks and meal descriptions" align="middle">
 </p>
 
 <p align="center"><strong>Tap a widget. Run a shortcut.</strong><br>One familiar entry point for water, supplements, food and meals you actually consumed.</p>
