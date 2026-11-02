@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="docs/images/showcase/app-icon.png" width="60" height="60" alt="OpenIntake icon" align="middle"> OpenIntake
+  <img src="docs/images/showcase/app-icon.png" width="50" height="50" alt="OpenIntake icon" align="middle"> OpenIntake
 </h1>
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [Releases](https://github.com/Eason556-dev/openintake/releases)
