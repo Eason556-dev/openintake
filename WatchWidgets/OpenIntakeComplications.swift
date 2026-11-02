@@ -18,7 +18,7 @@ struct IntakeComplicationView: View {
     let metric: DashboardMetric
     @Environment(\.widgetFamily) private var family
     @Environment(\.widgetRenderingMode) private var renderingMode
-    var tint: Color { metric == .water ? .cyan : metric == .energy ? .orange : metric == .protein ? .green : metric == .sugar ? .pink : .purple }
+    var tint: Color { metric == .water ? .cyan : metric == .energy ? .orange : metric == .protein ? .blue : metric == .sugar ? .pink : .purple }
     var renderedColor: Color { renderingMode == .fullColor ? tint : .primary }
     var item: DashboardValue { entry.snapshot?.metric(metric, at: entry.date) ?? .init(id: metric, value: nil, goal: nil) }
     var amount: String { item.value.map { $0.formatted(.number.precision(.fractionLength(0))) } ?? "—" }

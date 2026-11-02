@@ -79,6 +79,10 @@ public struct Product: Identifiable, Codable, Sendable {
     public var labelBasis: LabelBasis?
     public var recommendations: [String]?
     public var parsingProvider: String?
+    public var mealUnknownNutrients: [Nutrient]?
+    public var mealInputText: String?
+    public var mealType: String?
+    public var mealOverrides: [NutrientAmount]?
     public var mealDetails: [MealPortion]?
     public var manualNutrition: ManualNutritionTemplate?
     public var aiProposal: String?
@@ -153,7 +157,10 @@ public struct IntakeEvent: Identifiable, Codable, Sendable {
     public var state: SyncState = .pending
     public var lastError: String?
     public var healthVerifiedAt: Date?
+    public var healthSampleIDs: [UUID]?
     public var healthWriteSnapshot: [NutrientAmount]?
+    public var replacedHealthSamples: [NutrientAmount]?
+    public var productHistory: [Product]?
     /// Absent in older libraries. Restoration keeps the event identity but advances its sync revision.
     public var healthSyncVersion: Int?
     public var watchRequest: WatchIntakeRequest?
@@ -167,7 +174,15 @@ public struct IntakeEvent: Identifiable, Codable, Sendable {
         self.product = product; self.servings = servings; self.date = date
         self.healthWriteSnapshot = plan
     }
-    public var healthSamples: [NutrientAmount] { get throws { try healthWriteSnapshot ?? HealthPlan.samples(for: product) } }
+    public var healthSamples: [NutrientAmount] { get throws {
+        let samples = try healthWriteSnapshot ?? HealthPlan.samples(for: product)
+        try Self.validateSamples(samples)
+        guard samples.allSatisfy({ ($0.value * $0.unit.canonicalMultiplier * servings).isFinite }) else { throw IntakeError.invalidQuantity }
+        return samples
+    } }
+    public static func validateSamples(_ samples: [NutrientAmount]) throws {
+        guard Set(samples.map(\.nutrient)).count == samples.count, samples.allSatisfy({ $0.value.isFinite && $0.value >= 0 && $0.unit.dimension == $0.nutrient.dimension }) else { throw IntakeError.invalidProduct }
+    }
     public var consumedQuantity: Double { servings * (product.labelBasis?.kind == .per100g || product.labelBasis?.kind == .per100mL ? 100 : product.unitsPerServing ?? 1) }
     public var consumedUnitCount: Double? { product.unitsPerServing.map { $0 * servings } }
     public func canonicalValue(for amount: NutrientAmount) -> Double { amount.value * amount.unit.canonicalMultiplier * servings }

@@ -1,4 +1,6 @@
-# OpenIntake
+<h1 align="center">
+  <img src="docs/images/showcase/app-icon.png" width="44" height="44" alt="OpenIntake icon" align="middle"> OpenIntake
+</h1>
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [Releases](https://github.com/Eason556-dev/openintake/releases)
 
@@ -8,7 +10,7 @@ Create a product once, enter what you actually consumed, and sync supported, kno
 
 **Local-first · Privacy-first · Zero Server · Zero Account · Open Source**
 
-Current source preview: **0.7.2 / build 19**. [Release notes](docs/releases/v0.7.2.md) · MIT license.
+Current source preview: **0.8.0 / build 20**. [Release notes](docs/releases/v0.8.0.md) · MIT license.
 
 ## Vision
 
@@ -16,13 +18,40 @@ Devices already collect activity and vital signs well. Food, drinks and suppleme
 
 Apple Health remains the center for supported health data. OpenIntake does not diagnose, recommend doses or predict every food's nutrition. You decide what to record; unknown values remain unknown.
 
-## What it looks like
+## On iPhone and Apple Watch
 
-<table><tr><th>English nutrition overview</th><th>Chinese nutrition overview</th></tr><tr><td><img src="docs/images/nutrition-en.png" width="270" alt="English nutrition overview: energy, protein, sugar and sodium, with unknown values shown as dashes"></td><td><img src="docs/images/nutrition-zh.png" width="270" alt="Chinese nutrition overview with the same four nutrient rows"></td></tr></table>
+<p align="center">
+  <img src="docs/images/showcase/nutrition-iphone.jpg" width="330" alt="Real iPhone nutrition dashboard with energy, protein, carbohydrates, fat and essential nutrient progress" align="middle">
+  &nbsp;&nbsp;
+  <img src="docs/images/showcase/watch-complications.jpg" width="210" alt="Real Apple Watch face showing OpenIntake water, energy, protein, sugar and sodium complications" align="middle">
+</p>
 
-Real simulator screenshots using an empty library, not proof of HealthKit writes. Unknowns deliberately appear as **—**. When known values and personal goals are available, compact bars show progress; sugar and sodium are limits, not rewards for consuming more.
+<p align="center"><strong>Your daily intake, at a glance.</strong><br>Review nutrition on iPhone. Check it on your wrist. Clear values, personal targets and limits.</p>
 
-![Recording and HealthKit workflow](docs/images/workflow.svg)
+### Start wherever it feels natural
+
+<p align="center">
+  <img src="docs/images/showcase/water-widget.jpg" width="270" alt="OpenIntake quick water widget in the iPhone widget gallery with 150 and 250 mL actions" align="middle">
+  &nbsp;&nbsp;
+  <img src="docs/images/showcase/quick-log-shortcut.jpg" width="270" alt="Quick logging menu for water, supplements, food, drinks and meal descriptions" align="middle">
+</p>
+
+<p align="center"><strong>Tap a widget. Run a shortcut.</strong><br>One familiar entry point for water, supplements, food and meals you actually consumed.</p>
+
+<p align="center">
+  <img src="docs/images/showcase/action-button.jpg" width="360" alt="iPhone Action Button hold-to-run shortcut prompt with the OpenIntake icon">
+</p>
+
+<p align="center">Assign the shortcut to the Action Button on a supported iPhone to start logging.</p>
+
+<details>
+<summary>About these images and Markdown layout</summary>
+
+Maintainer-provided real-device views show the state at capture time; device frames are part of the supplied artwork. Location, capture-device and other identifying metadata have been removed without changing the interface content.
+
+For a normal image, use `![Description](docs/images/showcase/nutrition-iphone.jpg)`. The title icon and side-by-side images use GitHub-supported HTML `<img>` elements with a `width` attribute. All images use repository-relative paths and remain available in forks and source downloads.
+
+</details>
 
 ## Features
 
@@ -30,7 +59,7 @@ Real simulator screenshots using an empty library, not proof of HealthKit writes
 | --- | --- |
 | Products | Save and reuse supplement, food and drink labels. Enter serving definitions, units and known amounts. Edit templates without rewriting old intake snapshots. |
 | Basic OCR | Use the document camera and Apple Vision to transcribe supplement labels. Offline rules assist with names, values and relationships; review every result. No model is called. |
-| Meals | Type names and explicit g/mL quantities or add rows manually. Tap Record to confirm; no separate checkbox. Unknown-only meals save locally. Enter known nutrients per 100 g/mL to sync those values. |
+| Meals | Match offline food references or paste explicit nutrient summaries. Record energy alone, scale per-100 g/mL values, retain manual total adjustments and save reusable meals. Unknowns stay unknown; legacy meals can recover missing fields before resync. |
 | Water | Quick/custom mL logging, a daily ring, a personal goal and optional local reminders. |
 | Nutrition | Label-based sugar, sodium, energy, macro- and micronutrients; 39 dietary HealthKit quantity types. An approximate ordinary-salt conversion is explicitly marked as a manual estimate. |
 | Ingredient relationships | Retain unsupported ingredients locally. Do not add extract equivalents or already-included subcomponents to totals. Broad omega-3 → polyunsaturated-fat mapping requires explicit consent. |
@@ -39,17 +68,17 @@ Real simulator screenshots using an empty library, not proof of HealthKit writes
 | Watch | View today's values/goals and log water or products configured on iPhone. Automatic delivery uses stable request IDs and the iPhone HealthKit writer. New product setup stays on iPhone. |
 | System actions | iPhone widgets, Watch complications, App Intents, Siri/Shortcuts and Action Button workflows use the same recording path. System timing and connectivity affect background delivery. |
 | Languages | English/Chinese app UI, selectable in Settings → Language. Standardized ingredient names follow this setting; user names and label evidence retain their original language. |
-| Optional external tools | Share a generic checking prompt with a tool you choose, such as ChatGPT or Claude. No automatic data transfer, provider SDK, account or API key integration. Check answers and enter values manually. |
+| Optional external tools | Share a generic checking prompt with a tool you choose, such as ChatGPT or Claude. No automatic data transfer, provider SDK, account or API key integration. Paste the meal nutrient code block and review it; template zero placeholders must be confirmed or marked unknown. |
 
 **Scanning/saving a product is not intake.** Medication doses never map to nutrition. Unknown nutrients never become zero. Photos are temporary meal-entry references, not a nutrition estimator.
 
 ## Download the Xcode source
 
 1. Open [Releases](https://github.com/Eason556-dev/openintake/releases) and select the version you want.
-2. In **Assets**, download `OpenIntake-0.7.2-source.zip` and its `.sha256` file for this release. GitHub's automatic **Source code (zip)** is also available, but the named asset includes a source manifest and has passed the packaging audit.
+2. In **Assets**, download `OpenIntake-0.8.0-source.zip` and its `.sha256` file for this release. GitHub's automatic **Source code (zip)** is also available, but the named asset includes a source manifest and has passed the packaging audit.
 3. Optionally verify the download in Terminal from its folder:
    ```sh
-   shasum -a 256 -c OpenIntake-0.7.2-source.zip.sha256
+   shasum -a 256 -c OpenIntake-0.8.0-source.zip.sha256
    ```
 4. Double-click the ZIP to extract. Open the extracted folder, then **OpenIntake.xcodeproj**.
 5. Follow the [step-by-step iPhone and Watch build guide](docs/BUILD.en.md).
@@ -73,16 +102,24 @@ See [BUILD.en.md](docs/BUILD.en.md) for all four identifiers, simulator instruct
 
 ## Meal recording without AI
 
-<img src="docs/images/meal-manual-en.png" width="300" alt="Manual meal entry without a confirmation checkbox">
+Enter `200g cooked rice and 150g cooked beef`, select the actual preparation and review the offline reference. Or paste explicit whole-meal nutrient values:
 
-The manual meal screen with an enabled Confirm & log action and no checkbox. This simulator draft has no nutrient estimates and has not been recorded.
+```text
+Meal: Example lunch
+Dietary Energy: 650 kcal
+Protein: 32 g
+Carbohydrates: 70 g
+Total Fat: 20 g
+Sodium: 900 mg
+```
 
+Tap **Organize meal text**, review the filled fields and adjust totals if needed. Confirmation sends known values through the same HealthKit outbox. Energy-only records do not require invented food weights. Editing or completing a previous meal preserves its timestamp and event ID.
 
-Enter `Rice 150 g, Tea 250 mL`. Names and quantities are organized by rules. Correct any missing quantity, then tap **Record**; this button is the confirmation.
+- Leave unknown nutrients blank; unknown-only meal records remain local.
+- Confirm actual zeros or mark external-template zero placeholders unknown in one action.
+- Unclear quantities, incompatible units, duplicate submissions and stale text produce specific blocking reasons instead of bypassing validation.
 
-- **No known nutrients:** a local meal event is saved with its quantities. No nutrition samples are written and no sync-success claim is made.
-- **Some known nutrients:** enter the label/reference values per 100 g/mL. Only known contributions are calculated and sent through the normal HealthKit queue. Missing nutrients remain absent.
-- Invalid quantities, stale text after editing already-filled nutrients, duplicate submission or an in-progress write still block recording with a reason. The fix does not unconditionally enable the button.
+[Meal/dashboard repair notes](docs/DASHBOARD_NUTRIENT_REPAIR.md) · [Offline reference and limits](docs/OFFLINE_NUTRITION_REDESIGN.md)
 
 ## Privacy and data boundaries
 
@@ -102,12 +139,12 @@ python3 scripts/generate_project.py
 xcodebuild -project OpenIntake.xcodeproj -scheme OpenIntake \
   -destination 'generic/platform=iOS' -derivedDataPath /tmp/OpenIntake-build \
   CODE_SIGNING_ALLOWED=NO build
-python3 scripts/package_source.py --version 0.7.2
+python3 scripts/package_source.py --version 0.8.0
 ```
 
 If command-line tools select the wrong Xcode, prefix commands with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`. No signing is needed for the unsigned build. Device installation and real HealthKit acceptance are separate steps.
 
-174 core tests passed for this release, including manual recording, unknown-only local meals, frozen snapshots, permissions, failures, retries, undo/restore and Watch request deduplication. See [meal fix and validation](docs/MEAL_MANUAL_RECORDING.md). Mock tests and simulator screenshots do not prove physical-device synchronization.
+219 core tests passed for this release, including manual recording, unknown-only local meals, frozen snapshots, permissions, failures, retries, undo/restore and Watch request deduplication. See [meal fix and validation](docs/MEAL_MANUAL_RECORDING.md). Mock tests and simulator screenshots do not prove physical-device synchronization.
 
 The source ZIP includes `SOURCE_MANIFEST.json` with per-file SHA-256 values. The release workflow checks, builds and packages source on a `v*` tag and publishes a prerelease. [Maintainer publishing steps](docs/PUBLISHING.md).
 
@@ -127,4 +164,8 @@ docs/                    Build guides, design, screenshots and release notes
 
 Forks and contributions are welcome under [MIT](LICENSE). See [CONTRIBUTING.md](CONTRIBUTING.md). Keep new intake types on the shared HealthKit outbox; preserve permission, sample verification, retry, undo and idempotency tests. Never commit personal health data or signing credentials.
 
-Current limits: no full food database, barcode catalog, automatic nutrition prediction, medication management or universally installable IPA. OCR and background synchronization need device acceptance. The project is a developer preview and does not provide medical advice.
+Current limits: the offline food reference is historical USDA SR Legacy with limited Chinese aliases; there is no complete branded barcode catalog, automatic nutrition prediction, medication management or universally installable IPA. OCR and background synchronization need device acceptance. The project is a developer preview and does not provide medical advice.
+
+### Offline food reference and nutrition dashboard
+
+Meal entry now supports deterministic English/Chinese food matching with a bundled USDA SR Legacy reference (7,793 foods), structured food/serving selection, per-nutrient completeness, retained manual overrides, reusable meals, and recoverable HealthKit edits. The dashboard adds energy, macro rings, essential nutrient/limit bars, all-nutrient detail and trends. No AI, server, API key or account is required. Ambiguous foods require selection; missing nutrition remains unknown. See [implementation, sources, limitations and device acceptance](docs/OFFLINE_NUTRITION_REDESIGN.md).

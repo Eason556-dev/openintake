@@ -4,7 +4,7 @@ import Foundation
 public enum QuickIntake {
     /// Select a widget default without replacing a deleted explicit choice or reusing a quantity in a new unit.
     public static func widgetSelection(products: [Product], preferredID: UUID?, quantity: Double?, expectedUnit: String?) -> (Product, Double)? {
-        let eligible = products.filter { ($0.kind == .supplement || $0.manualNutrition != nil) && (try? $0.validate()) != nil }
+        let eligible = products.filter { ($0.kind == .supplement || $0.manualNutrition != nil || $0.mealDetails != nil) && (try? $0.validate()) != nil }
         let product = preferredID.map { id in eligible.first { $0.id == id } } ?? eligible.first
         guard let product else { return nil }
         let fallback = product.manualNutrition?.packageQuantity ?? product.defaultIntakeQuantity
@@ -19,7 +19,7 @@ public enum QuickIntake {
             return (HydrationProgress.product(), quantity)
         }
         guard let product = products.first(where: { $0.id == productID }) else { throw IntakeError.missing }
-        guard product.kind == .supplement || product.manualNutrition != nil else { throw IntakeError.invalidProduct }
+        guard product.kind == .supplement || product.manualNutrition != nil || product.mealDetails != nil else { throw IntakeError.invalidProduct }
         if let expectedUnit, expectedUnit != product.intakeUnitTitle { throw QuickIntakeError.unitChanged }
         try product.validate()
         _ = try product.servings(forUnits: quantity)

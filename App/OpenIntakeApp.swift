@@ -158,6 +158,7 @@ struct HomeView: View {
                 Section(L10n.tr("系统与设备")) {
                     Button(L10n.tr("小组件与快捷指令")) { showSystemActions = true }
                     NavigationLink { WatchSettings(store: store) } label: { Label("Apple Watch", systemImage: "applewatch") }
+                    NavigationLink { FoodReferenceInformation() } label: { Label(L10n.tr("离线食物资料与许可"), systemImage: "books.vertical") }
                     NavigationLink { ExternalInformationGuide() } label: { Label(L10n.tr("借助外部工具核对"), systemImage: "questionmark.circle") }
                     Text(L10n.tr("离线记录 · 无账号 · 无内置 AI")).font(.footnote).foregroundStyle(.secondary)
                 }

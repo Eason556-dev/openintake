@@ -1,11 +1,15 @@
 import Foundation
 
 public enum DashboardMetric: String, Codable, CaseIterable, Sendable {
-    case water, energy, protein, sugar, sodium
+    case water, energy, protein, carbohydrates, fat, fiber, saturatedFat, sugar, sodium
+    /// Stable internal ID shared by phone, Watch and complications.
+    public var nutrientID: String {
+        switch self { case .energy: "energyConsumed"; case .fat: "fatTotal"; case .saturatedFat: "fatSaturated"; default: rawValue }
+    }
     public var unit: String { self == .water ? "mL" : self == .energy ? "kcal" : self == .sodium ? "mg" : "g" }
-    public var isLimit: Bool { self == .sugar || self == .sodium }
-    public var symbol: String { switch self { case .water: "drop.fill"; case .energy: "flame.fill"; case .protein: "leaf.fill"; case .sugar: "cube.fill"; case .sodium: "scalemass.fill" } }
-    public var title: String { switch self { case .water: "补水"; case .energy: "能量"; case .protein: "蛋白质"; case .sugar: "糖"; case .sodium: "钠" } }
+    public var isLimit: Bool { self == .sugar || self == .sodium || self == .saturatedFat }
+    public var symbol: String { switch self { case .water: "drop.fill"; case .energy: "flame.fill"; case .protein: "leaf.fill"; case .carbohydrates: "takeoutbag.and.cup.and.straw.fill"; case .fat: "drop.halffull"; case .fiber: "carrot.fill"; case .saturatedFat: "drop.triangle.fill"; case .sugar: "cube.fill"; case .sodium: "scalemass.fill" } }
+    public var title: String { switch self { case .water: "补水"; case .energy: "能量"; case .protein: "蛋白质"; case .carbohydrates: "碳水化合物"; case .fat: "总脂肪"; case .fiber: "膳食纤维"; case .saturatedFat: "饱和脂肪"; case .sugar: "糖"; case .sodium: "钠" } }
 }
 public struct DashboardValue: Codable, Equatable, Sendable, Identifiable {
     public var id: DashboardMetric

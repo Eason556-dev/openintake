@@ -71,16 +71,21 @@ final class IntakeStore: ObservableObject {
     func logUnits(_ product: Product, units: Double) async throws {
         try await log(product, servings: product.servings(forUnits: units))
     }
-    func logMeal(_ product: Product, requestID: UUID) async throws {
+    func editMeal(_ id: UUID, product: Product) async throws {
+        guard !busy else { throw IntakeError.busy }; busy = true; defer { busy = false }
+        var value = library; try value.editMeal(id, product: product); try persist(value)
+        await sync(id)
+    }
+    func logMeal(_ product: Product, requestID: UUID, date: Date = Date()) async throws {
         // Durable request identity also protects reopening/retrying this same draft.
         try MealReviewState.validateRequest(requestID, events: library.events)
         var snapshot = product; snapshot.id = requestID
-        try await log(snapshot, servings: 1)
+        try await log(snapshot, servings: 1, date: date)
     }
-    func log(_ product: Product, servings: Double) async throws {
+    func log(_ product: Product, servings: Double, date: Date = Date()) async throws {
         guard !busy else { throw IntakeError.busy }
         busy = true; defer { busy = false }
-        let event = try IntakeEvent(product: product, servings: servings)
+        let event = try IntakeEvent(product: product, servings: servings, date: date)
         var value = library; try value.enqueue(event)
         try persist(value) // durable outbox before any HealthKit write
         await sync(event.id)
@@ -157,6 +162,7 @@ final class IntakeStore: ObservableObject {
                 if event.state == .pending, (try? event.healthSamples.isEmpty) == false,
                    let index = value.events.firstIndex(where: { $0.id == id }) {
                     value.events[index].healthVerifiedAt = Date()
+                    value.events[index].healthSampleIDs = health.sampleIDs(for: event.id)
                 }
                 try persist(value)
             }

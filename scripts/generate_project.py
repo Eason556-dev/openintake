@@ -29,6 +29,7 @@ for table in ['Localizable','InfoPlist']:
  if children: resource_refs.append(obj('variant'+table,f'isa = PBXVariantGroup; children = ({",".join(children)}); name = "{table}.strings"; sourceTree = "<group>";'))
 privacy=obj('privacy','isa = PBXFileReference; lastKnownFileType = text.xml; path = App/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT;')
 assets=obj('assets','isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = App/Assets.xcassets; sourceTree = SOURCE_ROOT;')
+fooddb=obj('fooddb','isa = PBXFileReference; lastKnownFileType = file; path = Sources/IntakeCore/Resources/FoodReference.sqlite; sourceTree = SOURCE_ROOT;')
 watchassets=obj('watchassets','isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = WatchApp/Assets.xcassets; sourceTree = SOURCE_ROOT;')
 products=[]
 for key,t in targets.items():
@@ -36,11 +37,11 @@ for key,t in targets.items():
  t['product']=obj(key+'product',f'isa = PBXFileReference; explicitFileType = "wrapper.{"app-extension" if t["ext"] else "application"}"; path = "{t["name"]}.{extension}"; sourceTree = BUILT_PRODUCTS_DIR;')
  products.append(t['product'])
 productgroup=obj('products',f'isa = PBXGroup; children = ({",".join(products)}); name = Products; sourceTree = "<group>";')
-obj('group',f'isa = PBXGroup; children = ({",".join(list(refs.values())+[config,privacy,assets,watchassets]+resource_refs+[productgroup])}); sourceTree = "<group>";')
+obj('group',f'isa = PBXGroup; children = ({",".join(list(refs.values())+[config,privacy,assets,watchassets,fooddb]+resource_refs+[productgroup])}); sourceTree = "<group>";')
 for key,t in targets.items():
  builds=[obj(key+p,f'isa = PBXBuildFile; fileRef = {refs[p]};') for p in t['files']]
  sources=obj(key+'sources',f'isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = ({",".join(builds)}); runOnlyForDeploymentPostprocessing = 0;')
- resourcebuilds=[obj(key+'res'+r,f'isa = PBXBuildFile; fileRef = {r};') for r in resource_refs+[privacy]+([assets] if key=='app' else [watchassets] if key=='watch' else [])]
+ resourcebuilds=[obj(key+'res'+r,f'isa = PBXBuildFile; fileRef = {r};') for r in resource_refs+[privacy]+([assets,fooddb] if key=='app' else [watchassets] if key=='watch' else [])]
  resources=obj(key+'resources',f'isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ({",".join(resourcebuilds)}); runOnlyForDeploymentPostprocessing = 0;')
  frameworks=obj(key+'frameworks','isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;')
  phases=[sources,frameworks,resources];dependencies=[]
@@ -56,7 +57,7 @@ for key,t in targets.items():
   settings=f'PRODUCT_NAME = {t["name"]}; PRODUCT_BUNDLE_IDENTIFIER = "{t["bundle"]}"; SDKROOT = {t["sdk"]}; SWIFT_VERSION = 6.0; CLANG_ENABLE_MODULES = YES; '
   settings+=('WATCHOS_DEPLOYMENT_TARGET = 10.0; TARGETED_DEVICE_FAMILY = 4; SUPPORTED_PLATFORMS = "watchos watchsimulator"; ' if watch else 'IPHONEOS_DEPLOYMENT_TARGET = 17.0; TARGETED_DEVICE_FAMILY = 1; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; ')
   ent=f'{t["folder"]}/OpenIntake.entitlements' if key!='widgets' else 'Widgets/OpenIntakeWidgets.entitlements'
-  settings+=f'GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = {t["folder"]}/Info.plist; CODE_SIGN_ENTITLEMENTS = {ent}; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 19; MARKETING_VERSION = 0.7.2; SWIFT_STRICT_CONCURRENCY = complete; '
+  settings+=f'GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = {t["folder"]}/Info.plist; CODE_SIGN_ENTITLEMENTS = {ent}; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 20; MARKETING_VERSION = 0.8.0; SWIFT_STRICT_CONCURRENCY = complete; '
   if t['ext']: settings+='APPLICATION_EXTENSION_API_ONLY = YES; SKIP_INSTALL = YES; '
   if key=='watch': settings+='SKIP_INSTALL = YES; '
   if key in ['app','watch']: settings+='ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; '

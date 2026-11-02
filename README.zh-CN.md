@@ -1,4 +1,6 @@
-# OpenIntake
+<h1 align="center">
+  <img src="docs/images/showcase/app-icon.png" width="44" height="44" alt="OpenIntake icon" align="middle"> OpenIntake
+</h1>
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [下载 Releases](https://github.com/Eason556-dev/openintake/releases)
 
@@ -8,7 +10,7 @@
 
 **Local-first · Privacy-first · Zero Server · Zero Account · Open Source**
 
-当前源码预览版：**0.7.2 / build 19**。[更新说明](docs/releases/v0.7.2.md) · MIT 开源许可。
+当前源码预览版：**0.8.0 / build 20**。[更新说明](docs/releases/v0.8.0.md) · MIT 开源许可。
 
 ## 我们的愿景
 
@@ -16,13 +18,40 @@ Apple Watch 和 iPhone 已能自动采集许多运动及生理数据，食品、
 
 Apple Health 继续负责受支持健康数据的集中保存。OpenIntake 不自行开发健康评分、不推荐服用剂量，也不声称能预测所有食品的营养组成。用户决定记录什么，未知值始终保持未知。
 
-## 功能展示
+## 在 iPhone 与 Apple Watch 上
 
-<table><tr><th>中文营养首页</th><th>英文营养首页</th></tr><tr><td><img src="docs/images/nutrition-zh.png" width="270" alt="中文营养首页：能量、蛋白质、糖和钠，未知值显示横线"></td><td><img src="docs/images/nutrition-en.png" width="270" alt="英文营养首页，四项营养以对齐列表显示"></td></tr></table>
+<p align="center">
+  <img src="docs/images/showcase/nutrition-iphone.jpg" width="330" alt="iPhone 实机营养首页：能量、蛋白质、碳水、脂肪与营养进度" align="middle">
+  &nbsp;&nbsp;
+  <img src="docs/images/showcase/watch-complications.jpg" width="210" alt="Apple Watch 实机表盘：补水、能量、蛋白质、糖和钠组件" align="middle">
+</p>
 
-以上是空资料库的真实模拟器截图，不代表真实 HealthKit 写入。未知显示 **—**；有已知值和个人目标时显示紧凑进度条。糖、钠表示已用限量，不以“摄入越多”为奖励。
+<p align="center"><strong>一天的摄入，一眼看清。</strong><br>在 iPhone 核对营养，在 Apple Watch 抬腕查看。数值、目标与限量清晰呈现。</p>
 
-![摄入记录与 HealthKit 流程](docs/images/workflow.svg)
+### 从最顺手的入口开始
+
+<p align="center">
+  <img src="docs/images/showcase/water-widget.jpg" width="270" alt="iPhone 小组件选择页中的 OpenIntake 快速饮水组件，可记录 150 或 250 毫升" align="middle">
+  &nbsp;&nbsp;
+  <img src="docs/images/showcase/quick-log-shortcut.jpg" width="270" alt="快捷记录菜单：饮水、补充剂、食品饮料与餐食文字入口" align="middle">
+</p>
+
+<p align="center"><strong>轻点小组件，或运行快捷指令。</strong><br>饮水、补充剂、食品与餐食，通过统一入口记录实际摄入。</p>
+
+<p align="center">
+  <img src="docs/images/showcase/action-button.jpg" width="360" alt="iPhone 操作按钮的长按运行快捷指令提示，显示 OpenIntake 图标">
+</p>
+
+<p align="center">把快捷指令绑定到支持的 iPhone 操作按钮，随手开始记录。</p>
+
+<details>
+<summary>关于这些图片与 Markdown 排版</summary>
+
+图片由维护者提供，展示实机界面在截图时的状态；设备边框来自原始素材。位置、拍摄设备及其他隐私元数据已移除，界面内容保持原样。
+
+普通图片可写为 `![说明](docs/images/showcase/nutrition-iphone.jpg)`。标题旁图标和并排图片使用 GitHub 支持的 HTML `<img>`，通过 `width` 控制展示大小；所有图片都使用仓库内相对路径，Fork 或下载源码后也能找到。
+
+</details>
 
 ## 已有功能
 
@@ -30,7 +59,7 @@ Apple Health 继续负责受支持健康数据的集中保存。OpenIntake 不�
 | --- | --- |
 | 产品资料 | 保存并复用补充剂、食品及饮料标签，填写每份定义、单位和已知含量。编辑模板不重写历史事件快照。 |
 | 基础 OCR | 文档相机与 Apple Vision 辅助抄录补充剂标签，本地规则辅助解析成分、数值和关系；需要用户逐项核对，不调用模型。 |
-| 餐食记录 | 输入名称与明确的 g/mL 份量，或手动添加条目。点击记录即确认，不再需要独立开关；营养全未知也能保存本机事件。填写已知的每 100 g/mL 营养后可同步对应值。 |
+| 餐食记录 | 离线匹配食品参考资料，或粘贴明确的营养汇总；支持单独记录能量、每 100 g/mL 换算、手动调整总量及常用餐食。未知值保持未知，旧餐食可补全字段后重新同步。 |
 | 补水 | 常用或自定义毫升数、当日圆环、个人目标及可选本机提醒。 |
 | 营养 | 按标签记录糖、钠、能量及宏量/微量营养素，适配 39 种 HealthKit 饮食营养类型。普通食盐的近似钠换算明确标为人工估算。 |
 | 成分关系 | 不支持的成分保留本地；提取物当量与已包含子成分不重复累计。Omega-3 → 多不饱和脂肪的宽泛映射需要明确同意。 |
@@ -39,17 +68,17 @@ Apple Health 继续负责受支持健康数据的集中保存。OpenIntake 不�
 | Apple Watch | 显示当日数值及目标，记录饮水或 iPhone 已配置产品。自动传输使用稳定请求 ID，并由 iPhone 统一写入健康；新产品仍在 iPhone 设置。 |
 | 系统入口 | iPhone 小组件、Watch 表盘组件、App Intents、Siri/快捷指令和操作按钮共用原有记录路径。后台传输受系统调度与连接影响。 |
 | 中英文 | 可跟随系统，或在设置 → 语言中指定。标准化成分名称跟随 App 语言；用户名称及包装证据保持原文。 |
-| 可选外部工具 | 分享通用核对提示词给自己选择的工具，如 ChatGPT、Claude；不自动发送资料、不接入提供方 SDK、账号或 API Key。核对回答后手动填写。 |
+| 可选外部工具 | 分享通用核对提示词给自己选择的工具，如 ChatGPT、Claude；不自动发送资料、不接入提供方 SDK、账号或 API Key。粘贴餐食营养代码块并核对；模板中的零占位需确认或设为未知。 |
 
 **扫描或保存产品不代表摄入。** 药品剂量不映射为营养，未知值不填零。餐食照片只在草稿页临时辅助核对，不用于营养预测。
 
 ## 从 Release 下载 Xcode 源码
 
 1. 打开仓库的 [Releases](https://github.com/Eason556-dev/openintake/releases)，选择需要的版本。
-2. 在 **Assets** 下载本版 `OpenIntake-0.7.2-source.zip` 及对应 `.sha256` 文件。GitHub 自动生成的 **Source code (zip)** 也能下载；项目命名的资产额外包含源码清单，并经过打包检查。
+2. 在 **Assets** 下载本版 `OpenIntake-0.8.0-source.zip` 及对应 `.sha256` 文件。GitHub 自动生成的 **Source code (zip)** 也能下载；项目命名的资产额外包含源码清单，并经过打包检查。
 3. 可在下载目录打开终端验证：
    ```sh
-   shasum -a 256 -c OpenIntake-0.7.2-source.zip.sha256
+   shasum -a 256 -c OpenIntake-0.8.0-source.zip.sha256
    ```
 4. 双击 ZIP 解压，进入文件夹，打开 **OpenIntake.xcodeproj**。
 5. 按[中文构建与真机安装教程](docs/BUILD.zh-CN.md)配置自己的签名并运行。
@@ -73,16 +102,24 @@ Apple Health 继续负责受支持健康数据的集中保存。OpenIntake 不�
 
 ## 不使用 AI 记录餐食
 
-<img src="docs/images/meal-manual-en.png" width="300" alt="Manual meal entry without a confirmation checkbox">
+输入 `米饭200克，牛肉150克`，选择实际品种和生熟状态，核对离线参考值；也可以直接粘贴明确的本餐营养汇总：
 
-手动餐食页面：右上角确认并记录可用，无独立开关。图中为尚未提交的模拟器草稿，没有任何营养估算。
+```text
+Meal: Example lunch
+Dietary Energy: 650 kcal
+Protein: 32 g
+Carbohydrates: 70 g
+Total Fat: 20 g
+Sodium: 900 mg
+```
 
+点击“整理文字餐食”，核对自动填写的字段，可修改总量；确认后通过同一个 HealthKit 队列写入。支持单独记录能量，无需编造食物重量。修改或补全旧餐食保留原时间与事件 ID。
 
-输入 `米饭 150 克，茶 250 毫升`，本地规则整理名称与明确份量。补齐缺失数量后点击**确认并记录**，该点击就是确认操作。
+- 未知营养留空；仅包含未知值的餐食保留在本机。
+- 外部完整模板中的零占位需确认实际为零，或一键设为未知。
+- 不明确的份量、单位冲突、重复提交及未整理的新文字会给出阻止原因，不会直接绕过校验。
 
-- **全部营养未知**：保存名称与份量的本机事件，不创建营养样本，不显示“已同步健康”。
-- **部分营养已知**：填写有依据的每 100 g/mL 数值，只计算并同步这些已知贡献，其他营养不填零。
-- 份量无效、已有营养时又修改文字但未重新核对、重复提交或正在写入，仍会显示具体原因并阻止记录。本次修复没有无条件开启按钮。
+[餐食与仪表盘修复说明](docs/DASHBOARD_NUTRIENT_REPAIR.md) · [离线参考资料与限制](docs/OFFLINE_NUTRITION_REDESIGN.md)
 
 ## 隐私与数据边界
 
@@ -102,12 +139,12 @@ python3 scripts/generate_project.py
 xcodebuild -project OpenIntake.xcodeproj -scheme OpenIntake \
   -destination 'generic/platform=iOS' -derivedDataPath /tmp/OpenIntake-build \
   CODE_SIGNING_ALLOWED=NO build
-python3 scripts/package_source.py --version 0.7.2
+python3 scripts/package_source.py --version 0.8.0
 ```
 
 如果终端选中了错误的开发者工具，可给命令添加 `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`。无签名构建无需个人签名；安装设备和真实健康写入需要另行验收。
 
-本版 174 项核心测试通过，覆盖手动餐食、全未知本地记录、冻结快照、权限、失败/重试、撤销/恢复与 Watch 防重。见[餐食修复及验证](docs/MEAL_MANUAL_RECORDING.md)。模拟适配器与模拟器截图不能证明真机同步。
+本版 219 项核心测试通过，覆盖手动餐食、全未知本地记录、冻结快照、权限、失败/重试、撤销/恢复与 Watch 防重。见[餐食修复及验证](docs/MEAL_MANUAL_RECORDING.md)。模拟适配器与模拟器截图不能证明真机同步。
 
 源码 ZIP 包含逐文件 SHA-256 的 `SOURCE_MANIFEST.json`。`v*` 标签触发检查、构建、源码打包及预发布流程。维护者操作见[GitHub 发布说明](docs/PUBLISHING.md)。
 
@@ -127,4 +164,8 @@ docs/                    构建教程、设计、截图和版本说明
 
 欢迎按 [MIT](LICENSE) 协议 Fork 和贡献，见 [CONTRIBUTING.md](CONTRIBUTING.md)。新摄入类型必须经过共享 HealthKit outbox，保留权限、样本核验、重试、撤销和防重测试；不提交个人健康数据或签名凭据。
 
-当前限制：没有完整食品数据库、条码商品库、自动营养预测、用药管理或通用 IPA。OCR 与后台同步仍需真机验收。项目为开发预览版，不提供医学建议。
+当前限制：离线食品资料来自历史 USDA SR Legacy，中文别名覆盖有限；没有完整品牌条码商品库、自动营养预测、用药管理或通用 IPA。OCR 与后台同步仍需真机验收。项目为开发预览版，不提供医学建议。
+
+### 离线餐食资料与营养概览
+
+餐食记录新增英中文规则解析、内置 USDA SR Legacy 7,793 项食品资料、食物及可靠份量选择、逐营养素完整度、可保留的手动总量调整、常用餐食复用，以及可恢复的 HealthKit 修改同步。营养页提供能量卡、三项宏量营养圆环、目标与限量进度、全部营养明细与趋势。无需 AI、服务器、API 密钥或账号；有歧义的食物需要用户选择，缺失营养保持未知。详见 [实现、来源、限制与真机验收](docs/OFFLINE_NUTRITION_REDESIGN.md)。

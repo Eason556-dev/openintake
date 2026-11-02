@@ -46,6 +46,8 @@ public struct MealPortion: Codable, Equatable, Identifiable, Sendable {
     public var per100g: [NutrientAmount]
     public var notes: String
     // Optional additions preserve decoding of existing meal snapshots.
+    public var referenceFoodID: String?
+    public var referenceOnlyNutrients: [ReferenceOnlyNutrient]?
     public var milliliters: Double?
     public var per100mL: [NutrientAmount]?
     public var portionUnit: MealPortionUnit { per100mL != nil || milliliters != nil ? .mL : .g }
@@ -57,8 +59,17 @@ public struct MealPortion: Codable, Equatable, Identifiable, Sendable {
         get { portionUnit == .mL ? per100mL ?? [] : per100g }
         set { if portionUnit == .mL { per100mL = newValue } else { per100g = newValue } }
     }
+    public mutating func rename(_ value: String) {
+        if value != name, referenceFoodID != nil {
+            referenceFoodID = nil; referenceOnlyNutrients = nil
+            nutrientsPer100.removeAll { $0.origin == .database }
+            notes = L10n.tr("名称已修改，请重新选择参考食物或手动填写营养。")
+        }
+        name = value
+    }
     public mutating func changeUnit(to unit: MealPortionUnit) {
         guard unit != portionUnit else { return }
+        referenceFoodID = nil; referenceOnlyNutrients = nil
         grams = nil; milliliters = nil; per100g = []; per100mL = unit == .mL ? [] : nil
     }
     public init(name: String, grams: Double? = nil, per100g: [NutrientAmount] = [], notes: String = "", milliliters: Double? = nil, per100mL: [NutrientAmount]? = nil) {
@@ -73,14 +84,18 @@ public enum MealValidation {
               Set(item.nutrientsPer100.map(\.nutrient)).count == item.nutrientsPer100.count else { throw IntakeError.invalidProduct }
         guard !(item.portionUnit == .mL && (item.grams != nil || !item.per100g.isEmpty)) else { throw IntakeError.invalidProduct }
         for amount in item.nutrientsPer100 {
-            guard amount.origin == .aiEstimate || amount.origin == .manual,
+            guard amount.origin == .aiEstimate || amount.origin == .manual || amount.origin == .database || amount.origin == .manualEstimate || amount.origin == .labelOCR,
                   amount.unit.dimension == amount.nutrient.dimension,
-                  amount.value.isFinite, amount.value > 0, amount.nutrient != .water else { throw IntakeError.invalidProduct }
+                  amount.value.isFinite, amount.value >= 0, (amount.origin != .aiEstimate || amount.value > 0), amount.nutrient != .water else { throw IntakeError.invalidProduct }
             let canonical = amount.value * amount.unit.canonicalMultiplier
-            guard canonical.isFinite, canonical > 0, canonical <= (amount.nutrient == .energyConsumed ? 1000 : 100) else { throw IntakeError.invalidQuantity }
+            guard canonical.isFinite, canonical >= 0, canonical <= (amount.nutrient == .energyConsumed ? 1000 : 100) else { throw IntakeError.invalidQuantity }
+        }
+        func value(_ nutrient: Nutrient) -> Double? { item.nutrientsPer100.first { $0.nutrient == nutrient }.map { $0.value * $0.unit.canonicalMultiplier } }
+        for (child,parent) in [(Nutrient.sugar,Nutrient.carbohydrates),(.fiber,.carbohydrates),(.fatSaturated,.fatTotal),(.fatMonounsaturated,.fatTotal),(.fatPolyunsaturated,.fatTotal)] {
+            if let sub = value(child), let total = value(parent), sub > total + 0.1 { throw IntakeError.invalidHierarchy }
         }
         let macros = item.nutrientsPer100.filter { [.protein, .carbohydrates, .fatTotal].contains($0.nutrient) }.reduce(0.0) { $0 + $1.value * $1.unit.canonicalMultiplier }
-        guard macros <= 101 else { throw IntakeError.invalidQuantity }
+        guard item.portionUnit != .g || macros <= 101 else { throw IntakeError.invalidQuantity }
     }
     public static func portionIssues(_ items: [MealPortion]) -> [String] {
         guard !items.isEmpty else { return ["请至少添加一项食物或饮料。"] }
@@ -117,13 +132,13 @@ public enum MealValidation {
                 let value = amount.value * amount.unit.canonicalMultiplier * quantity / 100
                 guard value.isFinite else { throw IntakeError.invalidQuantity }
                 totals[amount.nutrient, default: 0] += value
-                origins[amount.nutrient] = origins[amount.nutrient] == .aiEstimate || amount.origin == .aiEstimate ? .aiEstimate : .manual
+                origins[amount.nutrient] = origins[amount.nutrient] == .aiEstimate || amount.origin == .aiEstimate ? .aiEstimate : (origins[amount.nutrient] == .manual || amount.origin == .manual ? .manual : amount.origin)
             }
         }
         // Unknown-only meals are local records, never fabricated HealthKit nutrition.
         guard !totals.isEmpty || allowLocalOnly else { throw IntakeError.invalidProduct }
         let amounts = Nutrient.allCases.compactMap { nutrient -> NutrientAmount? in
-            guard let value = totals[nutrient], value.isFinite, value > 0 else { return nil }
+            guard let value = totals[nutrient], value.isFinite, value >= 0 else { return nil }
             return .init(nutrient, value, nutrient == .energyConsumed ? .kcal : .g, origin: origins[nutrient] ?? .aiEstimate)
         }
         var product = Product(name: items.map(\.name).joined(separator: "、"), serving: "本次实际摄入", nutrients: amounts, sourceText: "用户核对实际可食用重量或饮用体积及营养值后记录；逐项来源保留在餐食明细；未知营养未纳入总计。", confirmedAt: Date())

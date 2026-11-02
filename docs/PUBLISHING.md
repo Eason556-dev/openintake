@@ -22,19 +22,19 @@
 
 本地公开文件检查为启发式检查，不是秘密扫描的数学证明；新增格式需要人工审查。不要通过网页拖拽整个工作目录绕过 Git ignore。
 
-## v0.7.2 Release
+## v0.8.0 Release
 
 先在干净/已核对的源码目录打包：
 
 ```sh
 python3 scripts/check_public_files.py
-python3 scripts/package_source.py --version 0.7.2
+python3 scripts/package_source.py --version 0.8.0
 ```
 
 产物在忽略的 dist/：
 
-- `OpenIntake-0.7.2-source.zip`：Xcode 工程、源码、双语文档、示例配置、截图、许可与 SOURCE_MANIFEST.json。
-- `OpenIntake-0.7.2-source.zip.sha256`：整个 ZIP 的 SHA-256。
+- `OpenIntake-0.8.0-source.zip`：Xcode 工程、源码、双语文档、示例配置、截图、许可与 SOURCE_MANIFEST.json。
+- `OpenIntake-0.8.0-source.zip.sha256`：整个 ZIP 的 SHA-256。
 
 不包含个人 Local.xcconfig、.git、签名资料、健康记录或 IPA。ZIP 创建后会校验逐文件摘要及 ZIP 完整性。
 
@@ -43,8 +43,8 @@ python3 scripts/package_source.py --version 0.7.2
 在已确认只有该项目的专用仓库中，对通过测试的提交创建并推送标签：
 
 ```sh
-git tag v0.7.2
-git push origin v0.7.2
+git tag v0.8.0
+git push origin v0.8.0
 ```
 
 `.github/workflows/release.yml` 先在 macOS 运行检查、核心测试和无签名构建，再打包并发布源码预览 Release。需要仓库允许 GitHub Actions 运行，并允许该发布 job 使用 contents:write；不需要维护者个人访问令牌或 Apple 凭据。
@@ -54,8 +54,8 @@ git push origin v0.7.2
 ### 网页方式：已验证的本地产物
 
 1. 专用仓库 → **Releases → Draft a new release**。
-2. Tag 填 **v0.7.2**，Target 选择已核验的 main 提交。已有标签时选择同一标签，不随意移动已发布标签。
-3. 标题填 **OpenIntake v0.7.2**；复制 `docs/releases/v0.7.2.md` 的说明。
+2. Tag 填 **v0.8.0**，Target 选择已核验的 main 提交。已有标签时选择同一标签，不随意移动已发布标签。
+3. 标题填 **OpenIntake v0.8.0**；复制 `docs/releases/v0.8.0.md` 的说明。
 4. 向 Assets 上传上面的两个 dist 文件，等待上传完成。
 5. 标记 **pre-release**，因为目前是开发预览。检查下载名称、构建证据和说明后发布。
 6. 下载公开 ZIP，验证 checksum、解压并确认无 Local.xcconfig，能找到 OpenIntake.xcodeproj 及两份 README。
@@ -68,6 +68,6 @@ git push origin v0.7.2
 
 Use a dedicated repository, audit all publication candidates, run core tests and an unsigned iOS/watchOS build, then commit/push only source and documentation. Keep private signing overrides ignored.
 
-`python3 scripts/package_source.py --version 0.7.2` creates an audited deterministic ZIP and SHA-256 file in dist/. Publish both as prerelease assets, with release notes from docs/releases/v0.7.2.md. Users open the included Xcode project and sign with their own eligible Apple team.
+`python3 scripts/package_source.py --version 0.8.0` creates an audited deterministic ZIP and SHA-256 file in dist/. Publish both as prerelease assets, with release notes from docs/releases/v0.8.0.md. Users open the included Xcode project and sign with their own eligible Apple team.
 
 Either push a `v*` tag to run the verified-source release workflow, or publish the locally verified assets through GitHub's release UI. Do not run both for the same tag. Check the publicly downloaded archive and source manifest afterward. Neither a source ZIP nor an unsigned build is an installable IPA or proof of real-device HealthKit acceptance.

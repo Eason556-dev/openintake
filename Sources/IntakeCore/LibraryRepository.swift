@@ -12,7 +12,11 @@ public struct LibraryRepository: Sendable {
         let library = try JSONDecoder().decode(Library.self, from: data)
         guard library.schemaVersion == 1 else { throw CocoaError(.fileReadCorruptFile) }
         for product in library.products { try product.validate() }
-        for event in library.events { _ = try IntakeEvent(product: event.product, servings: event.servings, date: event.date) }
+        for event in library.events {
+            _ = try IntakeEvent(product: event.product, servings: event.servings, date: event.date)
+            _ = try event.healthSamples
+            try IntakeEvent.validateSamples(event.replacedHealthSamples ?? [])
+        }
         return library
     }
     public func save(_ value: Library) throws {
@@ -48,11 +52,27 @@ public extension Library {
         events[i].state = .pending
         events[i].lastError = nil
         events[i].healthVerifiedAt = nil
+        events[i].healthSampleIDs = nil
+    }
+    /// Persist before deletion/replacement. The old nutrient types survive interruption.
+    mutating func editMeal(_ id: UUID, product: Product) throws {
+        guard let i = events.firstIndex(where: { $0.id == id }) else { throw IntakeError.missing }
+        guard events[i].product.mealDetails != nil, product.mealDetails != nil,
+              events[i].state == .synced || events[i].state == .localOnly, events[i].syncVersion < Int.max else { throw IntakeError.busy }
+        var replacement = try IntakeEvent(product: product, servings: 1, date: events[i].date)
+        replacement.id = id
+        replacement.product.id = events[i].product.id
+        replacement.healthSyncVersion = events[i].syncVersion + 1
+        replacement.replacedHealthSamples = try events[i].healthSamples
+        replacement.productHistory = (events[i].productHistory ?? []) + [events[i].product]
+        events[i] = replacement
     }
     mutating func completeSync(_ id: UUID) {
         guard let i = events.firstIndex(where: { $0.id == id }) else { return }
         guard events[i].state == .pending || events[i].state == .deletionPending else { return }
         events[i].state = events[i].state == .deletionPending ? .deleted : ((try? events[i].healthSamples.isEmpty) == true ? .localOnly : .synced)
         events[i].lastError = nil
+        events[i].replacedHealthSamples = nil
+        if events[i].state == .deleted { events[i].healthSampleIDs = nil }
     }
 }

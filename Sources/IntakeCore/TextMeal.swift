@@ -92,7 +92,7 @@ public enum TextMealValidation {
         guard parts.count <= 30 else { throw TextMealError.invalidInput }
         return TextMealDraft(items: parts.map(explicitItem), warnings: [])
     }
-    private static func segments(_ text: String) -> [String] {
+    static func segments(_ text: String) -> [String] {
         // Commas between digits are decimal/thousands separators, not food boundaries.
         let separated = text.replacingOccurrences(of: #"(?<![0-9]),|,(?![0-9])"#, with: "；", options: .regularExpression)
         return separated.components(separatedBy: CharacterSet(charactersIn: "\n、;；，")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
@@ -116,5 +116,67 @@ public enum TextMealError: LocalizedError {
         case .invalidInput: L10n.tr("请输入1至4000字的本次实际餐食内容，最多30项；没有记录摄入。")
         case .noEvidence: L10n.tr("模型未返回有原文依据的食物。请重试或手动填写；没有记录摄入。")
         }
+    }
+}
+
+/// Whole-meal nutrient declarations are not food portions. Only exact known names
+/// and explicit dimension-compatible units are accepted; unsupported forms stay unknown.
+public enum MealNutritionText {
+    public struct Result: Sendable {
+        public var foodText: String
+        public var nutrients: [NutrientAmount]
+    }
+    public static func extract(_ text: String) throws -> Result {
+        try TextMealValidation.validateInput(text)
+        let expression = try NSRegularExpression(pattern: #"(?i)^\s*(?:[•*]\s*)?(.+?)\s*[:：=]?\s*([+-]?(?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)(?:\.[0-9]+)?)\s*(kcal|kj|calories?|mcg|μg|µg|ug|mg|ml|g|l|微克|毫克|毫升|克|升|千卡|大卡|卡路里|千焦(?:耳)?|iu|dfe|rae)\s*\.?\s*$"#)
+        var foods: [String] = [], values: [Nutrient: NutrientAmount] = [:]
+        for segment in TextMealValidation.segments(text) {
+            if ["nutrition","nutrition summary","nutrients","meal details","energy and macronutrients","other dietary components","vitamins","minerals","```","```text","```plaintext","营养信息","营养汇总"].contains(segment.trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(charactersIn: ":："))).lowercased()) { continue }
+            let ns = segment as NSString
+            if let match = expression.firstMatch(in: segment, range: NSRange(location: 0, length: ns.length)),
+               let nutrient = resolve(ns.substring(with: match.range(at: 1))) {
+                guard text.range(of: #"(?i)(per\s*(?:100|serving)|每\s*(?:100|份)|/\s*100)"#, options: .regularExpression) == nil else {
+                    throw MealReviewError.blocked(["文字中的能量计量基准不明确。请按每100克或每100毫升填写营养表，或单独注明本餐总能量。"])
+                }
+                let rawUnit = ns.substring(with: match.range(at: 3)).lowercased()
+                let unit = ["calorie","calories","大卡","卡路里"].contains(rawUnit) ? NutritionUnit.kcal : rawUnit == "千焦耳" ? .kJ : NutritionUnit.fromLabel(rawUnit)
+                guard let unit, unit.dimension == nutrient.dimension,
+                      let value = Double(ns.substring(with: match.range(at: 2)).replacingOccurrences(of: ",", with: "")), value.isFinite, value >= 0 else {
+                    throw MealReviewError.blocked(["营养文字的数值或单位无效，请核对；没有将它作为食物重量或填零。"])
+                }
+                let amount = NutrientAmount(nutrient, value, unit, origin: .manual)
+                if let existing = values[nutrient] {
+                    guard sameValue(existing, amount) else { throw MealReviewError.blocked(["同一营养素有多个不同总量，请核对后保留一个数值，避免重复累计。"]) }
+                } else { values[nutrient] = amount }
+            } else {
+                let pair = segment.components(separatedBy: CharacterSet(charactersIn: ":：="))
+                if pair.count == 2, resolve(pair[0]) != nil {
+                    let unknown = pair[1].trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                    if ["unknown","未知","—","n/a","na","not provided","未提供"].contains(unknown) { continue }
+                    throw MealReviewError.blocked(["营养文字的数值或单位无效，请核对；没有将它作为食物重量或填零。"])
+                }
+                foods.append(segment)
+            }
+        }
+        return Result(foodText: foods.joined(separator: "\n"), nutrients: Nutrient.allCases.compactMap { values[$0] })
+    }
+    public static func resolve(_ name: String) -> Nutrient? {
+        let clean = name.trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(charactersIn: ":：=•*")))
+        switch IngredientMapper.canonical(clean) {
+        case "dietaryenergy", "energyconsumed", "本餐总能量", "总能量", "总热量": return .energyConsumed
+        case "carbs": return .carbohydrates
+        case "thiaminb1", "thiamineb1": return .thiamin
+        case "riboflavinb2": return .riboflavin
+        default:
+            let key = IngredientCatalog.normalized(clean)
+            return Nutrient.allCases.first {
+                IngredientCatalog.normalized($0.rawValue) == key || IngredientCatalog.normalized($0.title) == key ||
+                (IngredientCatalog.aliases[$0.rawValue] ?? []).contains { IngredientCatalog.normalized($0) == key }
+            }
+        }
+    }
+    public static func sameValue(_ lhs: NutrientAmount, _ rhs: NutrientAmount) -> Bool {
+        let a = lhs.value * lhs.unit.canonicalMultiplier, b = rhs.value * rhs.unit.canonicalMultiplier
+        return lhs.nutrient == rhs.nutrient && abs(a-b) <= max(1e-10, max(abs(a),abs(b)) * 1e-9)
     }
 }

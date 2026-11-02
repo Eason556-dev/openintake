@@ -9,16 +9,53 @@ struct NutritionOverview: View {
             let snapshot = DashboardPreferences.snapshot(store.library.events, date: context.date)
             VStack(alignment: .leading, spacing: 18) {
                 Text(L10n.tr("今日营养")).font(.headline)
-                ForEach(snapshot.values.filter { $0.id != .water }) { value in
-                    NutritionProgressRow(value: value)
+                if store.library.events.prefix(100).contains(where: { Calendar.current.isDate($0.date, inSameDayAs: context.date) && !MealNutritionRecovery.missing(in: $0).isEmpty }) {
+                    NavigationLink { RecordHistory(store: store) } label: {
+                        Label(L10n.tr("有餐食营养文字待补全，点此修复同步"), systemImage: "exclamationmark.triangle")
+                    }.font(.caption).foregroundStyle(.orange)
                 }
+                let energy = snapshot.metric(.energy, at: context.date)
+                VStack(alignment: .leading, spacing: 8) {
+                    Label(L10n.display(DashboardMetric.energy.title), systemImage: "flame.fill").foregroundStyle(.orange)
+                    Text(energy.value.map { $0.formatted(.number.precision(.fractionLength(0))) + " kcal" } ?? "—").font(.largeTitle.bold()).monospacedDigit()
+                    if let goal = energy.goal {
+                        Text(L10n.tr("目标") + " " + goal.formatted() + " kcal").foregroundStyle(.secondary)
+                        if let value = energy.value { Text(L10n.tr("剩余") + " " + max(0,goal-value).formatted() + " kcal"); ProgressView(value: energy.fraction ?? 0).tint(.orange) }
+                    }
+                else { NavigationLink(L10n.tr("设置每日目标")) { GoalSettings(store: store) }.font(.subheadline) }
+                }.frame(maxWidth: .infinity, alignment: .leading).padding().background(Color.orange.opacity(0.07), in: RoundedRectangle(cornerRadius: 16))
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 12)], spacing: 12) {
+                    ForEach([DashboardMetric.protein, .carbohydrates, .fat], id: \.self) { metric in
+                        MacroProgress(value: snapshot.metric(metric, at: context.date))
+                    }
+                }
+                ForEach([DashboardMetric.fiber, .saturatedFat, .sugar, .sodium, .water], id: \.self) { metric in
+                    NutritionProgressRow(value: snapshot.metric(metric, at: context.date))
+                }
+                NavigationLink(L10n.tr("全部营养与趋势")) { NutritionDetails(store: store) }
                 Text(L10n.tr("已记录部分 · 未知不代表零")).font(.caption).foregroundStyle(.secondary)
+                if snapshot.values.contains(where: \.estimated) { Text(L10n.tr("含参考估算；不代表实测营养。")).font(.caption).foregroundStyle(.secondary) }
                 if snapshot.pendingCount > 0 {
                     Label(L10n.tr("有 \(snapshot.pendingCount) 条记录等待健康同步"), systemImage: "arrow.triangle.2.circlepath")
                         .font(.caption).foregroundStyle(.orange)
                 }
             }.padding(.vertical, 8)
         }
+    }
+}
+private struct MacroProgress: View {
+    var value: DashboardValue
+    private var tint: Color { value.id == .protein ? .blue : value.id == .carbohydrates ? .orange : .purple }
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle().stroke(tint.opacity(0.12), lineWidth: 7)
+                if let fraction = value.fraction { Circle().trim(from: 0, to: fraction).stroke(tint, style: StrokeStyle(lineWidth: 7, lineCap: .round)).rotationEffect(.degrees(-90)) }
+                Text(value.value.map { $0.formatted(.number.precision(.fractionLength(0...1))) } ?? "—").font(.headline).minimumScaleFactor(0.6).padding(8)
+            }.frame(maxWidth: 105).aspectRatio(1, contentMode: .fit)
+            Text(value.id == .carbohydrates ? L10n.tr("碳水") : value.id == .fat ? L10n.tr("脂肪") : L10n.display(value.id.title)).font(.caption).lineLimit(1).minimumScaleFactor(0.8).frame(maxWidth: .infinity).accessibilityLabel(L10n.display(value.id.title))
+            Text(value.goal.map { "/ " + $0.formatted() + " g" } ?? ("g · " + L10n.tr("未设目标"))).font(.caption2).foregroundStyle(.secondary)
+        }.frame(maxWidth: .infinity).accessibilityElement(children: .combine)
     }
 }
 private struct NutritionProgressRow: View {
@@ -57,11 +94,19 @@ struct GoalSettings: View {
     @AppStorage("goal.protein") private var protein = 0.0
     @AppStorage("goal.sugar") private var sugar = 0.0
     @AppStorage("goal.sodium") private var sodium = 0.0
+    @AppStorage("goal.carbohydrates") private var carbohydrates = 0.0
+    @AppStorage("goal.fat") private var fat = 0.0
+    @AppStorage("goal.fiber") private var fiber = 0.0
+    @AppStorage("goal.saturatedFat") private var saturated = 0.0
     var body: some View {
         Form {
             Section(L10n.tr("个人目标与限量")) {
                 goal(L10n.tr("能量目标 · kcal"), value: $energy)
                 goal(L10n.tr("蛋白质目标 · g"), value: $protein)
+                goal(L10n.tr("碳水目标 · g"), value: $carbohydrates)
+                goal(L10n.tr("脂肪目标 · g"), value: $fat)
+                goal(L10n.tr("纤维目标 · g"), value: $fiber)
+                goal(L10n.tr("饱和脂肪限量 · g"), value: $saturated)
                 goal(L10n.tr("糖限量 · g"), value: $sugar)
                 goal(L10n.tr("钠限量 · mg"), value: $sodium)
                 Text(L10n.tr("目标由你选择，0 表示未设置。这些是记录工具中的个人设置，不是医学建议。糖和钠不会以摄入越多为越好。"))

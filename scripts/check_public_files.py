@@ -14,14 +14,14 @@ PATTERNS = {
     'email address (use non-personal documentation instead)': r'[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}',
     'personal home path': r'/(?:Users|home)/[A-Za-z0-9_.-]+/',
     'physical Apple device identifier': r'\b[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}\b',
-    'literal Apple team setting': r'\b(?:DEVELOPMENT_TEAM|DevelopmentTeam)\s*=\s*"?[A-Z0-9]{10}\b',
-    'literal signing profile setting': r'\bPROVISIONING_PROFILE(?:_SPECIFIER)?\s*=\s*"?[^\s;"$][^;\n]*',
+    'literal Apple team setting': r'\b(?:DEVELOPMENT_TEAM|DevelopmentTeam)"?\s*=\s*"?[A-Z0-9]{10}\b',
+    'literal signing profile setting': r'\bPROVISIONING_PROFILE(?:_SPECIFIER)?"?\s*=\s*"?[^\s;"$][^;\n]*',
     'personal signing identity': r'Apple (?:Development|Distribution|Developer):[^\n;]+',
     'literal bearer token': r'(?i)\bBearer\s+[A-Za-z0-9._~-]{20,}',
     'Google API key': r'\bAIza[A-Za-z0-9_-]{30,}\b',
     'private key': r'-----BEGIN (?:[A-Z]+ )*PRIVATE KEY-----',
     'known API token': r'\b(?:sk-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16})\b',
-    'literal credential assignment': r'''(?i)\b(?:api[_-]?key|password|access[_-]?token|client[_-]?secret)\s*[:=]\s*["'][A-Za-z0-9_+/=-]{12,}["']''',
+    'literal credential assignment': r'''(?i)\b(?:api[_-]?key|password|access[_-]?token|client[_-]?secret)["']?\s*[:=]\s*["'][A-Za-z0-9_+/=-]{12,}["']''',
 }
 FORBIDDEN_SUFFIXES = {'.p8', '.p12', '.pfx', '.pem', '.key', '.cer', '.mobileprovision', '.provisionprofile', '.ipa', '.xcuserstate', '.xcactivitylog'}
 
@@ -52,6 +52,17 @@ def issues(path, data):
             if kind in (b'tEXt', b'zTXt', b'iTXt', b'eXIf'):
                 result.append('image metadata needs removal/review')
             offset += size + 12
+    if data.startswith(b'\xff\xd8'):
+        offset = 2
+        while offset + 4 <= len(data):
+            if data[offset] != 255: break
+            marker = data[offset + 1]
+            if marker == 0xDA: break
+            size = int.from_bytes(data[offset + 2:offset + 4], 'big')
+            if size < 2 or offset + 2 + size > len(data): break
+            if marker == 0xFE or (0xE0 <= marker <= 0xEF and marker not in (0xE0,0xE2,0xEE)):
+                result.append('JPEG identifying metadata needs removal/review')
+            offset += 2 + size
     return result
 
 

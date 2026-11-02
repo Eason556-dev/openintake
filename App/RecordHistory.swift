@@ -3,20 +3,31 @@ import SwiftUI
 struct RecordHistory: View {
     @AppStorage(L10n.preferenceKey) private var interfaceLanguage = "system"
     @ObservedObject var store: IntakeStore
+    @State private var mealRequest: MealRequest?
     var body: some View {
         List {
                 Section(L10n.tr("最近摄入")) {
                     ForEach(store.library.events.prefix(50)) { event in
                         VStack(alignment: .leading) {
                             Text("\(event.product.displayName) · \(event.consumedQuantity, specifier: "%.2g") \(L10n.display(event.product.intakeUnitTitle))")
+                            if event.product.mealDetails != nil && (event.state == .synced || event.state == .localOnly) {
+                                Button(MealNutritionRecovery.missing(in: event).isEmpty ? L10n.tr("编辑餐食") : L10n.tr("补全营养并重新同步")) { mealRequest = MealRequest(eventID: event.id) }
+                            }
+                            if !MealNutritionRecovery.missing(in: event).isEmpty {
+                                Text(L10n.tr("原文中有营养值尚未成为健康字段；当前同步状态仅代表已经保存的字段。")).font(.caption).foregroundStyle(.orange)
+                            }
                             if let meal = event.product.mealDetails {
                                 DisclosureGroup(L10n.tr("本次餐食明细")) {
-                                    ForEach(meal) { item in
-                                        Text("\(item.name) · \(item.quantity?.formatted() ?? "—") \(item.portionUnit.rawValue)")
+                                    if let text = event.product.mealInputText, !text.isEmpty { DisclosureGroup(L10n.tr("原始餐食文字")) { Text(text).font(.caption).foregroundStyle(.secondary) } }
+                                    ForEach(meal.filter { !MealNutritionRecovery.isNutrientRow($0) }) { item in
+                                        if let quantity = item.quantity { Text("\(item.name) · \(quantity.formatted()) \(item.portionUnit.rawValue)") }
+                                        else { Text(item.name + " · " + L10n.tr("份量未知")) }
                                     }
                                     if let amounts = try? event.healthSamples, !amounts.isEmpty {
                                         ForEach(amounts) { amount in
-                                            Text("\(L10n.display(amount.nutrient.title)) \(amount.value * event.servings, specifier: "%.4g") \(amount.unit.rawValue)")
+                                            let unit = NutritionRegistry.displayUnit(amount.nutrient)
+                                            let value = event.canonicalValue(for: amount) / unit.canonicalMultiplier
+                                            Text("\(L10n.display(amount.nutrient.title)) \(value, specifier: "%.4g") \(unit.rawValue)")
                                         }
                                     } else { Text(L10n.tr("仅本机餐食记录，没有营养样本写入 Apple 健康。")) }
                                 }
@@ -64,5 +75,6 @@ struct RecordHistory: View {
             if store.library.events.isEmpty { Text(L10n.tr("还没有摄入记录")) }
             Text(L10n.tr("左滑记录可撤销；误撤销可恢复原时间与数量。"))
         }.navigationTitle(L10n.tr("记录管理")).disabled(store.busy)
+        .sheet(item: $mealRequest) { MealEditor(store: store, request: $0) }
     }
 }

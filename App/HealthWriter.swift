@@ -3,7 +3,9 @@ import UIKit
 import Foundation
 
 @MainActor
-final class HealthWriter: NutritionHealthStore {
+final class HealthWriter: NutritionHealthStore, NutritionHealthReceiptStore {
+    private var receipts: [UUID: [UUID]] = [:]
+    func sampleIDs(for eventID: UUID) -> [UUID] { receipts[eventID] ?? [] }
     private let store = HKHealthStore()
     var allowsAuthorizationUI = true
     static func unit(for nutrient: Nutrient) -> HKUnit {
@@ -45,13 +47,18 @@ final class HealthWriter: NutritionHealthStore {
                 metadata: [HKMetadataKeySyncIdentifier: event.syncID(for: amount.nutrient), HKMetadataKeySyncVersion: event.syncVersion,
                     HKMetadataKeyWasUserEntered: true, "org.openintake.product": event.product.id.uuidString,
                     "org.openintake.productName": event.product.name, "org.openintake.entryDevice": event.watchRequest == nil ? "iPhone" : "Apple Watch", "org.openintake.revision": event.product.revision.uuidString, "org.openintake.origin": amount.origin.rawValue,
+                    "org.openintake.event": event.id.uuidString,
+                    "org.openintake.nutrientCoverage": coverage(event, nutrient: amount.nutrient),
+                    "org.openintake.foodReferences": (event.product.mealDetails ?? []).compactMap(\.referenceFoodID).joined(separator: ","),
                     "org.openintake.confirmedAt": event.product.confirmedAt!.timeIntervalSince1970])
         }
         try await store.save(samples)
         // Query only our own exact sync IDs; do not request access to other sources.
         var evidence: [HealthSampleEvidence] = []
+        var sampleIDs: [UUID] = []
         for amount in try event.healthSamples {
             for sample in try await ownSamples(event, nutrient: amount.nutrient) {
+                sampleIDs.append(sample.uuid)
                 evidence.append(.init(nutrient: amount.nutrient,
                     canonicalValue: sample.quantity.doubleValue(for: Self.unit(for: amount.nutrient)),
                     date: sample.startDate,
@@ -60,6 +67,12 @@ final class HealthWriter: NutritionHealthStore {
             }
         }
         try HealthVerification.validate(evidence, event: event)
+        receipts[event.id] = sampleIDs
+    }
+    private func coverage(_ event: IntakeEvent, nutrient: Nutrient) -> String {
+        guard let items = event.product.mealDetails else { return "provided" }
+        if event.product.mealOverrides?.contains(where: { $0.nutrient == nutrient }) == true { return "manual-total" }
+        return "\(items.filter { $0.nutrientsPer100.contains { $0.nutrient == nutrient } }.count)/\(items.count)"
     }
     func delete(_ event: IntakeEvent) async throws {
         for amount in try event.healthSamples {

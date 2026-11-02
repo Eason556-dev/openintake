@@ -25,11 +25,11 @@ struct WatchDashboard: View {
                             NavigationLink { WatchPendingView(store: store) } label: { Text(L10n.tr("手表待处理：\(store.outbox.items.count)")) }
                         }
                         Text(L10n.tr("今日摄入")).font(.headline)
-                        ForEach(DashboardMetric.allCases, id: \.self) { metric in
+                        ForEach([DashboardMetric.energy, .protein, .carbohydrates, .fat, .water], id: \.self) { metric in
                             let item = store.snapshot?.metric(metric, at: context.date) ?? DashboardValue(id: metric, value: nil, goal: nil)
                             HStack(spacing: 12) {
                                 Gauge(value: item.fraction ?? 0) { Image(systemName: metric.symbol) }
-                                    .gaugeStyle(.accessoryCircular).tint(metric == .water ? .cyan : metric.isLimit ? .orange : .green)
+                                    .gaugeStyle(.accessoryCircular).tint(metric == .water ? .cyan : metric == .protein ? .blue : metric == .fat ? .purple : .orange)
                                     .accessibilityLabel(L10n.display(metric.title))
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(L10n.display(metric.title)).font(.headline)
