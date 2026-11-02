@@ -21,9 +21,9 @@ Apple Health 继续负责受支持健康数据的集中保存。OpenIntake 不�
 ## 在 iPhone 与 Apple Watch 上
 
 <p align="center">
-  <img src="docs/images/showcase/nutrition-iphone.jpg" width="330" alt="iPhone 实机营养首页：能量、蛋白质、碳水、脂肪与营养进度" align="middle">
+  <img src="docs/images/showcase/nutrition-iphone.png" width="330" alt="iPhone 实机营养首页：能量、蛋白质、碳水、脂肪与营养进度" align="middle">
   &nbsp;&nbsp;
-  <img src="docs/images/showcase/watch-complications.jpg" width="210" alt="Apple Watch 实机表盘：补水、能量、蛋白质、糖和钠组件" align="middle">
+  <img src="docs/images/showcase/watch-complications.png" width="210" alt="Apple Watch 实机表盘：补水、能量、蛋白质、糖和钠组件" align="middle">
 </p>
 
 <p align="center"><strong>一天的摄入，一眼看清。</strong><br>在 iPhone 核对营养，在 Apple Watch 抬腕查看。数值、目标与限量清晰呈现。</p>
@@ -31,9 +31,9 @@ Apple Health 继续负责受支持健康数据的集中保存。OpenIntake 不�
 ### 从最顺手的入口开始
 
 <p align="center">
-  <img src="docs/images/showcase/water-widget.jpg" width="270" alt="iPhone 小组件选择页中的 OpenIntake 快速饮水组件，可记录 150 或 250 毫升" align="middle">
+  <img src="docs/images/showcase/water-widget.png" width="270" alt="iPhone 小组件选择页中的 OpenIntake 快速饮水组件，可记录 150 或 250 毫升" align="middle">
   &nbsp;&nbsp;
-  <img src="docs/images/showcase/quick-log-shortcut.jpg" width="270" alt="快捷记录菜单：饮水、补充剂、食品饮料与餐食文字入口" align="middle">
+  <img src="docs/images/showcase/quick-log-shortcut.png" width="270" alt="快捷记录菜单：饮水、补充剂、食品饮料与餐食文字入口" align="middle">
 </p>
 
 <p align="center"><strong>轻点小组件，或运行快捷指令。</strong><br>饮水、补充剂、食品与餐食，通过统一入口记录实际摄入。</p>
